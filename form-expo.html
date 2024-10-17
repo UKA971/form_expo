@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire d'œuvres</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            padding: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Formulaire d'œuvres</h1>
+
+    <form id="artForm">
+        <div class="form-section">
+            <label for="numWorks">Combien d'œuvres souhaitez-vous exposer ?</label>
+            <input type="number" id="numWorks" name="numWorks" min="1" max="50" required>
+        </div>
+
+        <div id="worksSection"></div>
+
+        <button type="submit">Envoyer</button>
+    </form>
+
+    <script>
+        document.getElementById('numWorks').addEventListener('input', function () {
+            const numWorks = parseInt(this.value);
+            const worksSection = document.getElementById('worksSection');
+
+            // Vide la section des œuvres
+            worksSection.innerHTML = '';
+
+            if (numWorks > 0) {
+                // Génère les champs pour chaque œuvre
+                for (let i = 1; i <= numWorks; i++) {
+                    const workContainer = document.createElement('div');
+                    workContainer.classList.add('form-section');
+
+                    // Titre de la section
+                    const sectionTitle = document.createElement('h2');
+                    sectionTitle.textContent = `Œuvre ${i}`;
+                    workContainer.appendChild(sectionTitle);
+
+                    // Nom de l'œuvre
+                    const nameLabel = document.createElement('label');
+                    nameLabel.textContent = `Nom de l'œuvre ${i}`;
+                    const nameInput = document.createElement('input');
+                    nameInput.type = 'text';
+                    nameInput.name = `nomOeuvre${i}`;
+                    nameInput.required = true;
+                    workContainer.appendChild(nameLabel);
+                    workContainer.appendChild(nameInput);
+
+                    // Techniques
+                    const techniquesLabel = document.createElement('label');
+                    techniquesLabel.textContent = `Techniques utilisées pour l'œuvre ${i}`;
+                    const techniquesInput = document.createElement('input');
+                    techniquesInput.type = 'text';
+                    techniquesInput.name = `techniquesOeuvre${i}`;
+                    techniquesInput.required = true;
+                    workContainer.appendChild(techniquesLabel);
+                    workContainer.appendChild(techniquesInput);
+
+                    // Dimensions
+                    const dimensionsLabel = document.createElement('label');
+                    dimensionsLabel.textContent = `Dimensions de l'œuvre ${i} (en cm)`;
+                    const dimensionsInput = document.createElement('input');
+                    dimensionsInput.type = 'text';
+                    dimensionsInput.name = `dimensionsOeuvre${i}`;
+                    dimensionsInput.required = true;
+                    workContainer.appendChild(dimensionsLabel);
+                    workContainer.appendChild(dimensionsInput);
+
+                    // Année de réalisation
+                    const yearLabel = document.createElement('label');
+                    yearLabel.textContent = `Année de réalisation de l'œuvre ${i}`;
+                    const yearInput = document.createElement('input');
+                    yearInput.type = 'number';
+                    yearInput.name = `anneeOeuvre${i}`;
+                    yearInput.min = '1000';
+                    yearInput.max = new Date().getFullYear().toString();
+                    yearInput.required = true;
+                    workContainer.appendChild(yearLabel);
+                    workContainer.appendChild(yearInput);
+
+                    // Prix
+                    const priceLabel = document.createElement('label');
+                    priceLabel.textContent = `Prix demandé pour l'œuvre ${i} (€)`;
+                    const priceInput = document.createElement('input');
+                    priceInput.type = 'number';
+                    priceInput.name = `prixOeuvre${i}`;
+                    priceInput.min = '0';
+                    priceInput.required = true;
+                    workContainer.appendChild(priceLabel);
+                    workContainer.appendChild(priceInput);
+
+                    // Ajoute l'ensemble de champs au formulaire
+                    worksSection.appendChild(workContainer);
+                }
+            }
+        });
+
+        // Gestion de la soumission du formulaire
+        document.getElementById('artForm').addEventListener('submit', function (event) {
+            event.preventDefault();  // Empêche l'envoi du formulaire classique
+
+            console.log("Formulaire soumis");  // Ajoute un log pour voir si l'événement est déclenché
+
+            const formData = new FormData(this);
+            const jsonData = {};
+            formData.forEach(function (value, key) {
+                jsonData[key] = value;
+            });
+
+            console.log("Données à envoyer :", jsonData);  // Affiche les données à envoyer
+
+            // Envoie les données à Google Apps Script
+            fetch('https://script.google.com/macros/s/AKfycbw48l6fPobcb6MYuPPk_sSCv5X-LGJedLZfmAHmFUWNWZEPTLuvXavlSrRlz7pQTH8Qzw/exec', {
+                method: 'POST',
+                body: JSON.stringify(jsonData),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => {
+                    console.log("Réponse reçue :", response);  // Affiche la réponse du serveur
+                    return response.text();
+                })
+                .then(data => {
+                    console.log("Données retournées :", data);  // Affiche les données retournées par le script Google
+                    alert('Formulaire soumis avec succès !');
+                })
+                .catch(error => {
+                    console.error('Erreur:', error);  // Affiche toute erreur qui se produit
+                });
+        });
+    </script>
+
+</body>
+
+</html>
